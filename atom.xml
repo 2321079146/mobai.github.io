@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://2321079146.github.io/mobai.github.io/</id>
+    <title>Gridea</title>
+    <updated>2022-01-21T01:09:29.903Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://2321079146.github.io/mobai.github.io/"/>
+    <link rel="self" href="https://2321079146.github.io/mobai.github.io/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>https://2321079146.github.io/mobai.github.io/images/avatar.png</logo>
+    <icon>https://2321079146.github.io/mobai.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, Gridea</rights>
+    <entry>
+        <title type="html"><![CDATA[测试百度空间是否可用]]></title>
+        <id>https://2321079146.github.io/mobai.github.io/post/ce-shi-bai-du-kong-jian-shi-fou-ke-yong/</id>
+        <link href="https://2321079146.github.io/mobai.github.io/post/ce-shi-bai-du-kong-jian-shi-fou-ke-yong/">
+        </link>
+        <updated>2022-01-20T07:37:58.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="主题1">主题1</h2>
+<p>好说</p>
+]]></content>
+    </entry>
+</feed>
