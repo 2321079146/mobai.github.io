@@ -1,0 +1,350 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spire创建code128A和条形码 | Gridea</title>
+<link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643334270097">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://2321079146.github.io/mobai.github.io//styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Spire创建code128A和条形码 | Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="    /**
+     * 创建二维码
+     *
+     * @param sku         sku名称
+     * @param skuFilePath 文件保存地址
+     * @param type        二..." />
+    <meta name="keywords" content="二维码、条形码" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://2321079146.github.io/mobai.github.io/">
+  <img class="avatar" src="https://2321079146.github.io/mobai.github.io//images/avatar.png?v=1643334270097" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/tags" class="menu" target="_blank">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Spire创建code128A和条形码
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-01-28
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+                <a href="https://2321079146.github.io/mobai.github.io/tag/QPCYPv9Bn/" class="post-tag">
+                  # 二维码、条形码
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <pre><code class="language-java">    /**
+     * 创建二维码
+     *
+     * @param sku         sku名称
+     * @param skuFilePath 文件保存地址
+     * @param type        二维码类型
+     * @return 文件保存路径
+     */
+    public static String createPdf(String sku, String skuFilePath, int type) {
+        if (StringUtils.isBlank(sku)) {
+            return null;
+        }
+
+        int pdfWidth, pdfHeight;
+        float qrWidth;
+        double barcodeWidth, barcodeHeight;
+        int fontsize;
+        float leftMargin, topMargin;
+
+        if (type == OsjConstant.BARCODE_COMMON) {// 普通版本
+            pdfWidth = 308;
+            pdfHeight = 105;
+            qrWidth = 93;
+            barcodeWidth = 190;
+            barcodeHeight = 65;
+            fontsize = 26;
+            leftMargin = 6;
+            topMargin = 6;
+        } else if (type == OsjConstant.BARCODE_BIG_WIDTH) {// 大边距普通版本
+            // pdf页面宽度
+            pdfWidth = 328;
+            // PDF页面高度
+            pdfHeight = 125;
+            // 二维码尺寸
+            qrWidth = 90;
+            // 条形码宽度
+            barcodeWidth = 180;
+            // 条形码高度
+            barcodeHeight = 65;
+            // 条形码下面的字的尺寸
+            fontsize = 15;
+            // 条形码离左侧的距离
+            leftMargin = 16;
+            // 条形码离上面的距离
+            topMargin = 16;
+        } else {// 条码宽版本
+            pdfWidth = 328;
+            pdfHeight = 105;
+            qrWidth = 93;
+            barcodeWidth = 210;
+            barcodeHeight = 62;
+            fontsize = 29;
+            leftMargin = 6;
+            topMargin = 6;
+        }
+
+        //创建PdfDocument对象
+        PdfDocument doc = new PdfDocument();
+        Dimension2D pdfSize = new Dimension(pdfWidth, pdfHeight);
+        PdfMargins margins = new PdfMargins(leftMargin, topMargin);
+        //添加一页
+        PdfPageBase page = doc.getPages().add(pdfSize, margins);
+        page.setBackgroudOpacity(0);
+        //初始化y变量
+        double y = 0;
+
+        // 配件sku需增加字符串显示
+        final String partsStr = &quot;PJ&quot;;
+        if (sku.startsWith(partsStr)) {
+            y = 35;
+            barcodeHeight = 30;
+            Point2D.Float pointPJ = new Point2D.Float();
+            pointPJ.setLocation(50,1);
+            page.getCanvas().drawString(&quot;** PARTS **&quot;, new PdfTrueTypeFont(new Font(&quot;Arial&quot;, Font.BOLD, fontsize), true),
+                    new PdfSolidBrush(new PdfRGBColor(Color.black)), pointPJ);
+        }
+
+        Point2D.Float point = new Point2D.Float();
+        point.setLocation(0, y);
+
+        // 绘制Code128A条码到PDF
+        BarcodeSettings settingsCode = new BarcodeSettings();
+        // 设置条形码类型
+        settingsCode.setType(BarCodeType.Code_128);
+        // code128a
+        settingsCode.setCode128SetMode(Code128SetMode.Only_A);
+        // 设置条形码数据
+        settingsCode.setData(sku);
+        // 不显示文本
+        settingsCode.setShowText(false);
+        //在底部显示数据
+        settingsCode.setShowTextOnBottom(true);
+        //设置边框为不可见
+        settingsCode.hasBorder(false);
+        BarCodeGenerator generator = new BarCodeGenerator(settingsCode);
+
+        Rectangle2D rect = new Rectangle();
+        rect.setRect(point.x, y, barcodeWidth, barcodeHeight);
+        //draw
+        PdfImage pdfImage1 = PdfImage.fromImage(generator.generateImage());
+        page.getCanvas().drawImage(pdfImage1, rect);
+
+        y = y + barcodeHeight + 5;
+
+        //-------创建字体---
+        //location
+        Point2D.Float pointW = new Point2D.Float();
+        pointW.setLocation(45, y);
+        //设置字体
+        PdfTrueTypeFont font1 = new PdfTrueTypeFont(new Font(&quot;Arial&quot;, Font.BOLD, fontsize), true);
+        for (int i = 1; i &lt; 10; i++) {
+            Dimension2D tSize = font1.measureString(sku);
+            System.out.println(tSize.getWidth());
+            if (tSize.getWidth() &gt; (barcodeWidth - 1)) {
+                fontsize = fontsize - 1;
+                font1 = new PdfTrueTypeFont(new Font(&quot;Aria&quot;, Font.BOLD, fontsize), true);
+            } else {
+                break;
+            }
+        }
+        //draw
+        PdfSolidBrush brush = new PdfSolidBrush(new PdfRGBColor(Color.black));
+        page.getCanvas().drawString(sku, font1, brush, pointW);
+
+        //创建BarcodeSettings实例----------------------------------------------
+        BarcodeSettings settings = new BarcodeSettings();
+        //设置条码类型为QR二维码
+        settings.setType(BarCodeType.QR_Code);
+        //设置二维码数据
+        settings.setData(sku);
+        //设置二维码显示数据
+        settings.setData2D(null);
+        //设置数据类型
+        settings.setQRCodeDataMode(QRCodeDataMode.Alpha_Number);
+        //设置二维码纠错级别
+        settings.setQRCodeECL(QRCodeECL.H);
+        settings.setShowText(false);
+        settings.setTopMargin(0);
+        settings.setLeftMargin(0);
+        settings.setRightMargin(0);
+        settings.setBottomMargin(0);
+
+        //创建BarCodeGenerator实例
+        BarCodeGenerator barCodeGenerator = new BarCodeGenerator(settings);
+        //根据settings生成图像数据，保存至BufferedImage实例
+        BufferedImage bufferedImage = barCodeGenerator.generateImage();
+        //绘制二维码图片到PDF页面指定位置
+        PdfImage pdfImage = PdfImage.fromImage(bufferedImage);
+        Rectangle2D rect2 = new Rectangle();
+        rect2.setRect(barcodeWidth * 1.06, 0, qrWidth, qrWidth);
+        page.getCanvas().drawImage(pdfImage, rect2);
+
+        //check
+        //--------------
+        try {
+            String[] dataArr = BarcodeScanner.scan(page.extractImages()[0], BarCodeType.Code_128);
+            logger.info(Arrays.toString(dataArr) + &quot;  | &quot; + sku);
+            if (dataArr.length == 0) {
+                throw new OsjException(&quot;无法读取条码&quot;);
+            }
+            String nullStr = &quot;null&quot;;
+            if (dataArr[0] == null || nullStr.equals(dataArr[0]) || !sku.equals(dataArr[0])) {
+                throw new OsjException(&quot;无法读取条码&quot;);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //----------------
+
+
+        //保存PDF文档
+        doc.saveToFile(skuFilePath);
+        return skuFilePath;
+    }
+</code></pre>
+<!-- more -->
+<!-- more -->
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://2321079146.github.io/mobai.github.io/post/spring-boot-pei-zhi-dong-tai-ding-shi-ren-wu/">
+              <h3 class="post-title">
+                Spring Boot 配置动态定时任务
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://2321079146.github.io/mobai.github.io//atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,534 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>barcode4j生成条形码，zxing生成二维码，zxing识别，itextpdf增加至pdf中 | Gridea</title>
+<link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643334270097">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://2321079146.github.io/mobai.github.io//styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="barcode4j生成条形码，zxing生成二维码，zxing识别，itextpdf增加至pdf中 | Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="package osj.web.util;
+
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+impo..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://2321079146.github.io/mobai.github.io/">
+  <img class="avatar" src="https://2321079146.github.io/mobai.github.io//images/avatar.png?v=1643334270097" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/tags" class="menu" target="_blank">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              barcode4j生成条形码，zxing生成二维码，zxing识别，itextpdf增加至pdf中
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-01-28
+              </span>
+              <span>
+                9 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <pre><code class="language-java">package osj.web.util;
+
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
+import org.apache.commons.lang3.StringUtils;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
+import org.krysalis.barcode4j.impl.code128.Code128Constants;
+import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
+import org.krysalis.barcode4j.tools.UnitConv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import osj.web.exception.BusinessException;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipOutputStream;
+
+/**
+ * @Author: mxc
+ * @Date: 2021-08-09
+ * @Description: 二维码工具类
+ */
+public class BarcodeUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(BarcodeUtil.class);
+
+    /**
+     * itextpdf 创建Pdf
+     * @param sku sku信息
+     * @param skuFilePath sku保存路径
+     */
+    public static String createBarcodePdf(String sku, String skuFilePath){
+        if (StringUtils.isBlank(sku)) {
+            return null;
+        }
+        String newFilePath = skuFilePath + sku + &quot;.pdf&quot;;
+        try {
+            File mkdir = new File(skuFilePath);
+            if (!mkdir.exists()) {
+                if (!mkdir.mkdirs()) {
+                    throw new BusinessException(&quot;目录创建失败&quot;);
+                }
+            }
+            FileOutputStream out = new FileOutputStream(newFilePath);
+            // Step 1—Create a Document.
+            com.itextpdf.text.Rectangle pageSize = new com.itextpdf.text.Rectangle(328, 125);
+            Document document = new Document(pageSize);
+            // Step 2—Get a PdfWriter instance.
+            PdfWriter pdfWriter = PdfWriter.getInstance(document, out);
+            // Step 3—Open the Document.
+            document.open();
+            // PdfContentByte cb = new PdfContentByte(pdfWriter); document直接添加元素使用这个
+            PdfContentByte cb = pdfWriter.getDirectContent();
+
+            // 生成code128A条形码
+            String code128Image = createSkuCode128A(sku, skuFilePath);
+            // 生成二维码
+            String qrCode = createSkuQrCode(sku, skuFilePath);
+
+            if (StringUtils.isEmpty(code128Image) || StringUtils.isEmpty(qrCode)) {
+                throw new BusinessException(&quot;二维码或者条形码图片生成失败&quot;);
+            }
+
+            // 将生成的图片添加到pdf中
+            imageAddToPdf(cb, document, code128Image, qrCode, sku);
+
+            // Step 4—Close the Document.
+            document.close();
+            out.close();
+
+            // 删除图片临时文件
+            File codeFile = new File(code128Image);
+            if (codeFile.exists()) {
+                if (!codeFile.delete()) {
+                    throw new BusinessException(&quot;条形码图片删除失败&quot;);
+                }
+            }
+
+            File qrCodeFile = new File(qrCode);
+            if (qrCodeFile.exists()) {
+                if (!qrCodeFile.delete()) {
+                    throw new BusinessException(&quot;二维码图片删除失败&quot;);
+                }
+            }
+        }catch (Exception e) {
+            logger.error(&quot;创建skuPdf失败&quot;,e);
+        }
+        return newFilePath;
+    }
+
+    /**
+     * 将图片添加到pdf中
+     * @param document document
+     * @param code128Image 条形码图片路径
+     * @param qrCode 二维码图片路径
+     * @param sku sku
+     * @throws DocumentException document异常
+     * @throws IOException io异常
+     */
+    private static void imageAddToPdf(PdfContentByte cb, Document document,String code128Image, String qrCode, String sku) throws Exception {
+
+        com.itextpdf.text.Image code128ImageFile = com.itextpdf.text.Image.getInstance(code128Image);
+
+        int qrCodeWith = 90;
+
+        int codeWidth = 200;
+
+        int codeHeight = 30;
+
+        String str = &quot;PJ&quot;;
+        // 配件sku增加标识
+        if (sku.startsWith(str)) {
+            // 文本框位置
+            com.itextpdf.text.Rectangle rect = new com.itextpdf.text.Rectangle(165, 120, 85, 60);
+            ColumnText cts = new ColumnText(cb);
+            cts.addText(new Phrase(&quot;** PJ **&quot;));
+            cts.setSimpleColumn(rect);
+            cts.go();
+        }
+        code128ImageFile.setWidthPercentage(100);
+        code128ImageFile.setAbsolutePosition(0, 40);
+        code128ImageFile.scaleToFit(220,40 + codeHeight);
+        String code128Str = imageDecode(code128Image);
+        if (!sku.equals(code128Str)) {
+            logger.error(&quot;sku:&quot; + sku + &quot;|&quot; + &quot;条形码:&quot; + code128Str);
+            throw new BusinessException(&quot;条形码识别信息与sku不匹配&quot;);
+        }
+
+        // 文本框位置
+        com.itextpdf.text.Rectangle rect = new com.itextpdf.text.Rectangle(65, 35, 180, 15);
+        ColumnText cts = new ColumnText(cb);
+        cts.addText(new Phrase(sku));
+        cts.setSimpleColumn(rect);
+        cts.go();
+
+        cb.addImage(code128ImageFile);
+
+        com.itextpdf.text.Image qrCodeImageFile = com.itextpdf.text.Image.getInstance(qrCode);
+        qrCodeImageFile.setAbsolutePosition(200, 0);
+        code128ImageFile.scaleToFit(230 + qrCodeWith,qrCodeWith + 20);
+        String qrCodeStr = imageDecode(code128Image);
+        if (!sku.equals(qrCodeStr)) {
+            logger.error(&quot;sku:&quot; + sku + &quot;|&quot; + &quot;二维码:&quot; + code128Str);
+            throw new BusinessException(&quot;二维码识别信息与sku不匹配&quot;);
+        }
+        cb.addImage(qrCodeImageFile);
+    }
+
+    /**
+     * 使用zxing生成二维码
+     * barcode4j现无二维码编辑器
+     * 官方文档解释：Barcode4J does not currently contain an actual QR Code encoder. The QR Code support is currently just an adapter to ZXing's QR encoder.
+     *            This means that ZXing Core 1.7 (or later) has to be in the classpath for this to work.
+     *            Barcode4J may get its own QR Code encoder sometime in the future.
+     * @param sku sku
+     * @param skuPath 基础路径
+     * @return 新文件路径
+     * @throws FileNotFoundException 文件找不到异常
+     */
+    private static String createSkuQrCode(String sku, String skuPath) throws FileNotFoundException, WriterException {
+        String newFilePath = skuPath + sku + &quot;_2.png&quot;;
+
+        try {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(sku,
+                    BarcodeFormat.QR_CODE, 120, 120, null);
+
+            Path path = new File(newFilePath).toPath();
+            MatrixToImageWriter.writeToPath(bitMatrix, &quot;png&quot;,path);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return newFilePath;
+    }
+
+    /**
+     *
+     * barcode4j生成code128A条形码
+     * @param sku sku
+     * @param skuPath 基础路径
+     * @return 新路径
+     * @throws FileNotFoundException 文件未找到
+     */
+    private static String createSkuCode128A(String sku, String skuPath) throws FileNotFoundException {
+        String newFilePath = skuPath + sku + &quot;_1.png&quot;;
+        File file = new File(newFilePath);
+        OutputStream out = new FileOutputStream(file);
+        if (StringUtils.isEmpty(sku)) {
+            return null;
+        }
+
+        Code128Bean bean = new Code128Bean();
+        // 精细度
+        final int dpi = 400;
+        // module宽度
+        final double moduleWidth = UnitConv.in2mm(1.0f / dpi);
+
+        // 配置图片相关属性
+        bean.setBarHeight(4);
+        // 只能使用code128A生成
+        bean.setCodeset(Code128Constants.CODESET_A);
+        bean.setModuleWidth(moduleWidth);
+        // 左右是否留空
+        bean.doQuietZone(true);
+        // 底部字体的大小
+        bean.setFontSize(0);
+        String format = &quot;image/png&quot;;
+
+        try {
+            BitmapCanvasProvider canvas = new BitmapCanvasProvider(out, format, dpi,
+                    BufferedImage.TYPE_BYTE_BINARY, false, 0);
+            // 生成条形码
+            bean.generateBarcode(canvas, sku);
+            // 完成绘制
+            canvas.finish();
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return newFilePath;
+    }
+
+    /**
+     * zxing识别图形中包含信息
+     *
+     * @throws IOException io异常
+     */
+    public static String imageDecode(String filePath) throws Exception {
+        BufferedImage image;
+        Result result = null;
+        try {
+            image = ImageIO.read(new File(filePath));
+            if (image == null) {
+                throw new BusinessException(&quot;图片不存在或者创建失败&quot;);
+            }
+            LuminanceSource source = new BufferedImageLuminanceSource(image);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+            result = new MultiFormatReader().decode(bitmap, null);
+            return result.getText();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (result == null) {
+            throw new BusinessException(&quot;图片识别异常&quot;);
+        }
+        return null;
+    }
+
+
+    /**
+     * 校验sku
+     *
+     * @param skuName sku名称
+     * @return 是否正确
+     */
+    public static boolean isValid(String skuName) {
+        String regex = &quot;^[a-zA-Z]{2}[0-9]{6}[a-zA-Z]{3}$&quot;;
+        skuName = skuName.toUpperCase().trim();
+        if (StringUtils.isBlank(skuName) || !skuName.matches(regex)) {
+            System.out.println(&quot;请输入正确的SKU&quot;);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 单个文件下载
+     *
+     * @param fileName 文件名
+     * @param type     二维码尺寸类型
+     * @return 校验信息
+     */
+    public static String doDownLoad(HttpServletRequest request, HttpServletResponse response, String fileName, int type) {
+        String requestUrl = request.getSession().getServletContext().getRealPath(&quot;/&quot;);
+        String filePath = requestUrl + &quot;barcode/&quot; + fileName + &quot;.pdf&quot;;
+        File file = new File(filePath);
+
+        if (!isValid(fileName)) {
+            return &quot;SKU格式不规范&quot;;
+        }
+
+        // 文件存在则直接获取文件,若不存在则需要下载
+        if (!file.exists()) {
+            createBarcodePdf(fileName, requestUrl + &quot;barcode/&quot;);
+        }
+        return null;
+    }
+
+    /**
+     * 批量文件zip下载
+     *
+     * @param skuCodes 文件名
+     * @param type     二维码尺寸类型
+     * @return 校验信息
+     */
+    public static String batchDownLoad(HttpServletRequest request, HttpServletResponse response, List&lt;String&gt; skuCodes, int type) {
+        String requestUrl = request.getSession().getServletContext().getRealPath(&quot;/&quot;);
+
+        // 获取校验通过的文件【前端已校验格式】
+        List&lt;File&gt; files = new ArrayList&lt;&gt;();
+        for (String skuCode : skuCodes) {
+            String filePath = requestUrl + &quot;barcode/&quot; + skuCode + &quot;.pdf&quot;;
+            File file = new File(filePath);
+            // 文件存在则直接获取文件,若不存在则需要下载
+            if (!file.exists()) {
+                createBarcodePdf(skuCode,  requestUrl + &quot;barcode/&quot;);
+                file = new File(filePath);
+            }
+            files.add(file);
+        }
+
+        Date currentDate = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat(&quot;yyyyMMddHHmmss&quot;);
+        String currentTime = sdf.format(currentDate);
+        // 遍历文件存入到zip文件中
+        String zip = currentTime + &quot;.zip&quot;;
+        File fileZip = new File(requestUrl + &quot;download/&quot; + zip);
+        // 文件输出流
+        FileOutputStream outStream = null;
+        ZipOutputStream toClient = null;
+        try {
+            outStream = new FileOutputStream(fileZip);
+            // 压缩流
+            toClient = new ZipOutputStream(outStream);
+            // 存入到本地服务器中
+            FileAddToZipUtil.zipFile(files, toClient);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.flush();
+                    toClient.close();
+                }
+                if (outStream != null) {
+                    outStream.flush();
+                    outStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return zip;
+    }
+}
+
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://2321079146.github.io/mobai.github.io/post/spire-chuang-jian-code128a-he-tiao-xing-ma/">
+              <h3 class="post-title">
+                Spire创建code128A和条形码
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://2321079146.github.io/mobai.github.io//atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
