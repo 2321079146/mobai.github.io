@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>spring boot + Mybatis Plus 实现动态多数据源 | Gridea</title>
-<link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643334270097">
+<link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643334371521">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://2321079146.github.io/mobai.github.io//styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="spring boot + Mybatis Plus 实现动态多数据源 | Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
@@ -14,8 +14,8 @@
     <meta name="description" content="Maven依赖
 &lt;!-- mybatis-plus --&gt;
 &lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;m..." />
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactI..." />
     <meta name="keywords" content="springBoot" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -25,7 +25,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://2321079146.github.io/mobai.github.io/">
-  <img class="avatar" src="https://2321079146.github.io/mobai.github.io//images/avatar.png?v=1643334270097" alt="">
+  <img class="avatar" src="https://2321079146.github.io/mobai.github.io//images/avatar.png?v=1643334371521" alt="">
   </a>
   <h1 class="site-title">
     Gridea
@@ -99,16 +99,16 @@
                 <h2 id="maven依赖">Maven依赖</h2>
 <pre><code class="language-xml">&lt;!-- mybatis-plus --&gt;
 &lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${mybatis-plus.version}&lt;/version&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;${mybatis-plus.version}&lt;/version&gt;
 &lt;/dependency&gt;
 
 &lt;!-- 动态数据源 --&gt;
 &lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${dynamic-datasource-spring-boot-starter.version}&lt;/version&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;${dynamic-datasource-spring-boot-starter.version}&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 <br/>
@@ -268,7 +268,6 @@ public class BusinessServiceImpl implements BusinessService {
   UNIQUE KEY `uk_sdc_rule_code` (`code`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC
 </code></pre>
-<!-- more -->
 
               </div>
               <div class="toc-container">

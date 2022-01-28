@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://2321079146.github.io/mobai.github.io/</id>
     <title>Gridea</title>
-    <updated>2022-01-28T01:44:31.788Z</updated>
+    <updated>2022-01-28T01:46:13.908Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://2321079146.github.io/mobai.github.io/"/>
     <link rel="self" href="https://2321079146.github.io/mobai.github.io/atom.xml"/>
@@ -858,192 +858,19 @@ public class DynamicPrintTask implements ScheduledOfTask {
         <link href="https://2321079146.github.io/mobai.github.io/post/spring-boot-mybatis-plus-shi-xian-dong-tai-duo-shu-ju-yuan/">
         </link>
         <updated>2022-01-28T01:37:43.000Z</updated>
-        <summary type="html"><![CDATA[<h2 id="maven依赖">Maven依赖</h2>
-<pre><code class="language-xml">&lt;!-- mybatis-plus --&gt;
-&lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${mybatis-plus.version}&lt;/version&gt;
-&lt;/dependency&gt;
-
-&lt;!-- 动态数据源 --&gt;
-&lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${dynamic-datasource-spring-boot-starter.version}&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-<br/>
-<h2 id="springyml配置">Spring.yml配置</h2>
-<pre><code class="language-yaml">spring:
-  datasource:
-    dynamic:
-      primary: master #设置默认的数据源或者数据源组,默认值即为master
-      strict: false #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
-      datasource:
-        master:
-          url: jdbc:mysql://xx.xx.xx.xx:3306/dynamic
-          username: root
-          password: 123456
-          driver-class-name: com.mysql.jdbc.Driver # 3.2.0开始支持SPI可省略此配置
-</code></pre>
-<br/>
-<h2 id="读取默认数据源">读取默认数据源</h2>
-<pre><code class="language-java">package com.mobai.osj.config.datasource;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-/**
- * @author mxc
- * @date 2021-09-30
- * @description 默认数据源配置
- */
-@Configuration
-public class DataSourceConfig {
-
-    @Value(&quot;${spring.datasource.dynamic.datasource.master.driver-class-name}&quot;)
-    private String driverClassName;
-    @Value(&quot;${spring.datasource.dynamic.datasource.master.url}&quot;)
-    private String url;
-    @Value(&quot;${spring.datasource.dynamic.datasource.master.username}&quot;)
-    private String username;
-    @Value(&quot;${spring.datasource.dynamic.datasource.master.password}&quot;)
-    private String password;
-
-    @Bean
-    public MysqlDynamicDataSourceProvider mysqlDynamicDataSourceProvider(){
-        return new MysqlDynamicDataSourceProvider(driverClassName,url,username,password);
-    }
-}
-
-</code></pre>
-<br/>
-<h3 id="程序启动后读取数据库中所有数据源">程序启动后，读取数据库中所有数据源</h3>
-<pre><code class="language-java">package com.mobai.osj.config.datasource;
-
-import com.baomidou.dynamic.datasource.provider.AbstractJdbcDataSourceProvider;
-import com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DataSourceProperty;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * @author mxc
- * @date 2021-09-30
- * @description 动态数据源配置
- */
-public class MysqlDynamicDataSourceProvider extends AbstractJdbcDataSourceProvider {
-
-    public MysqlDynamicDataSourceProvider(String driverClassName, String url, String username, String password) {
-        super(driverClassName, url, username, password);
-    }
-
-    @Override
-    protected Map&lt;String, DataSourceProperty&gt; executeStmt(Statement statement) throws SQLException {
-        ResultSet rs = statement.executeQuery(&quot;select * from sys_data_source&quot;);
-        Map&lt;String, DataSourceProperty&gt; map = new HashMap&lt;&gt;(4);
-
-        // 从数据库中获取信息
-        while(rs.next()){
-            String code = rs.getString(&quot;code&quot;);
-            String url = rs.getString(&quot;db_url&quot;);
-            String username = rs.getString(&quot;db_username&quot;);
-            String password = rs.getString(&quot;db_password&quot;);
-            String key = rs.getString(&quot;db_name&quot;);
-            String driverClassName = rs.getString(&quot;db_driver&quot;);
-
-            DataSourceProperty dataSourceProperty = new DataSourceProperty();
-            dataSourceProperty.setPoolName(code);
-            dataSourceProperty.setDriverClassName(driverClassName);
-            dataSourceProperty.setUrl(url);
-            dataSourceProperty.setUsername(username);
-            dataSourceProperty.setPassword(password);
-
-            map.put(key,dataSourceProperty);
-        }
-        return map;
-    }
-}
-
-</code></pre>
-<br/>
-<h3 id="ds数据源名称指定数据源处理业务">@DS(数据源名称)指定数据源，处理业务</h3>
-<pre><code class="language-java">package com.mobai.osj.system.service.impl;
-
-import com.baomidou.dynamic.datasource.annotation.DS;
-import com.mobai.osj.system.service.BusinessService;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-/**
- * @author mxc
- * @date 2022-01-06
- * @description 跨服务实现层
- */
-@AllArgsConstructor
-@Service
-public class BusinessServiceImpl implements BusinessService {
-
-    final private DataSource datasource;
-
-    @DS(&quot;OSJ_PRO&quot;)
-    @Override
-    public ResultSet selectForJapanBigPromotion(String sql) throws SQLException {
-        Connection connection = datasource.getConnection();
-        Statement statement = connection.prepareStatement(sql);
-        return statement.executeQuery(sql);
-    }
-}
-
-</code></pre>
-<br/>
-<h3 id="数据库数据源配置">数据库数据源配置</h3>
-<pre><code class="language-sql">CREATE TABLE `sys_data_source` (
-  `id` varchar(36) NOT NULL,
-  `code` varchar(100) DEFAULT NULL COMMENT '数据源编码',
-  `name` varchar(100) DEFAULT NULL COMMENT '数据源名称',
-  `remark` varchar(200) DEFAULT NULL COMMENT '备注',
-  `db_type` varchar(10) DEFAULT NULL COMMENT '数据库类型',
-  `db_driver` varchar(100) DEFAULT NULL COMMENT '驱动类',
-  `db_url` varchar(500) DEFAULT NULL COMMENT '数据源地址',
-  `db_name` varchar(100) DEFAULT NULL COMMENT '数据库名称',
-  `db_username` varchar(100) DEFAULT NULL COMMENT '用户名',
-  `db_password` varchar(100) DEFAULT NULL COMMENT '密码',
-  `create_by` varchar(50) DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime DEFAULT NULL COMMENT '创建日期',
-  `update_by` varchar(50) DEFAULT NULL COMMENT '更新人',
-  `update_time` datetime DEFAULT NULL COMMENT '更新日期',
-  `sys_org_code` varchar(64) DEFAULT NULL COMMENT '所属部门',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `sys_data_source_code_uni` (`code`) USING BTREE,
-  UNIQUE KEY `uk_sdc_rule_code` (`code`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC
-</code></pre>
-]]></summary>
         <content type="html"><![CDATA[<h2 id="maven依赖">Maven依赖</h2>
 <pre><code class="language-xml">&lt;!-- mybatis-plus --&gt;
 &lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${mybatis-plus.version}&lt;/version&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;${mybatis-plus.version}&lt;/version&gt;
 &lt;/dependency&gt;
 
 &lt;!-- 动态数据源 --&gt;
 &lt;dependency&gt;
-	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-	&lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;
-	&lt;version&gt;${dynamic-datasource-spring-boot-starter.version}&lt;/version&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;dynamic-datasource-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;${dynamic-datasource-spring-boot-starter.version}&lt;/version&gt;
 &lt;/dependency&gt;
 </code></pre>
 <br/>
@@ -1203,7 +1030,6 @@ public class BusinessServiceImpl implements BusinessService {
   UNIQUE KEY `uk_sdc_rule_code` (`code`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC
 </code></pre>
-<!-- more -->
 ]]></content>
     </entry>
     <entry>
