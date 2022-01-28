@@ -1,0 +1,286 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spring Boot 配置动态定时任务 | Gridea</title>
+<link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643333982567">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://2321079146.github.io/mobai.github.io//styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Spring Boot 配置动态定时任务 | Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="学习博客：在Spring Boot中优雅的实现定时任务 https://zhuanlan.zhihu.com/p/79644891
+1.启动类上增加@EnableScheduling
+
+2.数据库增加定时任务表
+-- auto-genera..." />
+    <meta name="keywords" content="springBoot" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://2321079146.github.io/mobai.github.io/">
+  <img class="avatar" src="https://2321079146.github.io/mobai.github.io//images/avatar.png?v=1643333982567" alt="">
+  </a>
+  <h1 class="site-title">
+    Gridea
+  </h1>
+  <p class="site-description">
+    温故而知新
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/tags" class="menu" target="_blank">
+          标签
+        </a>
+      
+    
+      
+        <a href="https://2321079146.github.io/mobai.github.io/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Spring Boot 配置动态定时任务
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-01-28
+              </span>
+              <span>
+                2 min read
+              </span>
+              
+                <a href="https://2321079146.github.io/mobai.github.io/tag/OiH3qkion/" class="post-tag">
+                  # springBoot
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>学习博客：在Spring Boot中优雅的实现定时任务 <a href="https://">https://zhuanlan.zhihu.com/p/79644891</a></p>
+<h2 id="1启动类上增加enablescheduling">1.启动类上增加@EnableScheduling</h2>
+<br/>
+<h2 id="2数据库增加定时任务表">2.数据库增加定时任务表</h2>
+<pre><code class="language-sql">-- auto-generated definition
+create table m_scheduled
+(
+    cron_id         int auto_increment comment '主键id'
+        primary key,
+    cron_key        varchar(128)           not null comment '定时任务完整类名',
+    cron_expression varchar(20)            not null comment 'cron表达式',
+    task_explain    varchar(50) default '' not null comment '任务描述',
+    status          tinyint     default 1  not null comment '状态,1:正常;2:停用',
+    constraint cron_key
+        unique (cron_key),
+    constraint cron_key_unique_idx
+        unique (cron_key)
+)
+    comment '定时任务表';
+
+</code></pre>
+<br/>
+<h2 id="3定时任务config">3.定时任务config</h2>
+<pre><code class="language-java">@Configuration
+public class ScheduledConfig implements SchedulingConfigurer {
+
+    @Autowired
+    private ApplicationContext context;
+    @Autowired
+    private IScheduledService scheduledService;
+
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        for (Scheduled springScheduledCron : scheduledService.list()) {
+            Class&lt;?&gt; clazz;
+            Object task;
+            try {
+                clazz = Class.forName(springScheduledCron.getCronKey());
+                task = context.getBean(clazz);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(&quot;spring_scheduled_cron表数据&quot; + springScheduledCron.getCronKey() + &quot;有误&quot;, e);
+            } catch (BeansException e) {
+                throw new IllegalArgumentException(springScheduledCron.getCronKey() + &quot;未纳入到spring管理&quot;, e);
+            }
+            Assert.isAssignable(ScheduledOfTask.class, task.getClass(), &quot;定时任务类必须实现ScheduledOfTask接口&quot;);
+            // 可以通过改变数据库数据进而实现动态改变执行周期
+            taskRegistrar.addTriggerTask(((Runnable) task),
+                    triggerContext -&gt; {
+                        String cronExpression = scheduledService.findByCronKey(springScheduledCron.getCronKey()).getCronExpression();
+                        return new CronTrigger(cronExpression).nextExecutionTime(triggerContext);
+                    }
+            );
+        }
+    }
+
+    @Bean
+    public Executor taskExecutor() {
+        return Executors.newScheduledThreadPool(10);
+    }
+}
+
+</code></pre>
+<br/>
+<h2 id="4定时任务实现">4.定时任务实现</h2>
+<h3 id="41-定义接口">4.1 定义接口</h3>
+<pre><code class="language-java">public interface ScheduledOfTask extends Runnable {
+    /**
+     * 定时任务方法
+     */
+    void execute();
+    /**
+     * 实现控制定时任务启用或禁用的功能
+     */
+    @Override
+    default void run() {
+        IScheduledService repository = SpringUtil.getBean(IScheduledService.class);
+        Scheduled scheduledCron = repository.findByCronKey(this.getClass().getName());
+        // 禁用则不处理
+        if (StatusEnum.DISABLED.getCode().equals(scheduledCron.getStatus())) {
+            return;
+        }
+        execute();
+    }
+}
+</code></pre>
+<br/>
+<h3 id="42定时任务都需要实现此接口">4.2定时任务都需要实现此接口</h3>
+<pre><code class="language-java">@Component
+@Slf4j
+public class DynamicPrintTask implements ScheduledOfTask {
+
+    private int i;
+
+    @Override
+    public void execute() {
+        log.info(&quot;thread id:{},DynamicPrintTask execute times:{}&quot;, Thread.currentThread().getId(), ++i);
+    }
+}
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1%E5%90%AF%E5%8A%A8%E7%B1%BB%E4%B8%8A%E5%A2%9E%E5%8A%A0enablescheduling">1.启动类上增加@EnableScheduling</a></li>
+<li><a href="#2%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A2%9E%E5%8A%A0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E8%A1%A8">2.数据库增加定时任务表</a></li>
+<li><a href="#3%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1config">3.定时任务config</a></li>
+<li><a href="#4%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%AE%9E%E7%8E%B0">4.定时任务实现</a>
+<ul>
+<li><a href="#41-%E5%AE%9A%E4%B9%89%E6%8E%A5%E5%8F%A3">4.1 定义接口</a></li>
+<li><a href="#42%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%83%BD%E9%9C%80%E8%A6%81%E5%AE%9E%E7%8E%B0%E6%AD%A4%E6%8E%A5%E5%8F%A3">4.2定时任务都需要实现此接口</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://2321079146.github.io/mobai.github.io/post/spring-boot-mybatis-plus-shi-xian-dong-tai-duo-shu-ju-yuan/">
+              <h3 class="post-title">
+                spring boot + Mybatis Plus 实现动态多数据源
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://2321079146.github.io/mobai.github.io//atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

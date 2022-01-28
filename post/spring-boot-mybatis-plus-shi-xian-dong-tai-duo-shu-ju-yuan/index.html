@@ -2,16 +2,23 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Gridea</title>
+<title>spring boot + Mybatis Plus 实现动态多数据源 | Gridea</title>
 <link rel="shortcut icon" href="https://2321079146.github.io/mobai.github.io//favicon.ico?v=1643333982567">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://2321079146.github.io/mobai.github.io//styles/main.css">
-<link rel="alternate" type="application/atom+xml" title="Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
+<link rel="alternate" type="application/atom+xml" title="spring boot + Mybatis Plus 实现动态多数据源 | Gridea - Atom Feed" href="https://2321079146.github.io/mobai.github.io//atom.xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
 
-    <meta name="description" content="温故而知新" />
+    <meta name="description" content="Maven依赖
+&lt;!-- mybatis-plus --&gt;
+&lt;dependency&gt;
+	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+	&lt;artifactId&gt;m..." />
+    <meta name="keywords" content="springBoot" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
   </head>
   <body>
     <div class="main">
@@ -68,52 +75,28 @@
   </div>
 </div>
 
-    
-        <div class="post-container">
-  
-    <article class="post">
-      <a href="https://2321079146.github.io/mobai.github.io/post/spring-boot-pei-zhi-dong-tai-ding-shi-ren-wu/">
-        <h2 class="post-title">Spring Boot 配置动态定时任务</h2>
-      </a>
-      <div class="post-info">
-        <span>
-          2022-01-28
-        </span>
-        <span>
-          2 min read
-        </span>
-        
-          <a href="https://2321079146.github.io/mobai.github.io/tag/OiH3qkion/" class="post-tag">
-            # springBoot
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </div>
-    </article>
-  
-    <article class="post">
-      <a href="https://2321079146.github.io/mobai.github.io/post/spring-boot-mybatis-plus-shi-xian-dong-tai-duo-shu-ju-yuan/">
-        <h2 class="post-title">spring boot + Mybatis Plus 实现动态多数据源</h2>
-      </a>
-      <div class="post-info">
-        <span>
-          2022-01-28
-        </span>
-        <span>
-          5 min read
-        </span>
-        
-          <a href="https://2321079146.github.io/mobai.github.io/tag/OiH3qkion/" class="post-tag">
-            # springBoot
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        <h2 id="maven依赖">Maven依赖</h2>
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              spring boot + Mybatis Plus 实现动态多数据源
+            </h2>
+            <div class="post-info">
+              <span>
+                2022-01-28
+              </span>
+              <span>
+                5 min read
+              </span>
+              
+                <a href="https://2321079146.github.io/mobai.github.io/tag/OiH3qkion/" class="post-tag">
+                  # springBoot
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="maven依赖">Maven依赖</h2>
 <pre><code class="language-xml">&lt;!-- mybatis-plus --&gt;
 &lt;dependency&gt;
 	&lt;groupId&gt;com.baomidou&lt;/groupId&gt;
@@ -285,42 +268,44 @@ public class BusinessServiceImpl implements BusinessService {
   UNIQUE KEY `uk_sdc_rule_code` (`code`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC
 </code></pre>
+<!-- more -->
 
-      </div>
-    </article>
-  
-    <article class="post">
-      <a href="https://2321079146.github.io/mobai.github.io/post/ce-shi-bai-du-kong-jian-shi-fou-ke-yong/">
-        <h2 class="post-title">并发编程（一）：线程池</h2>
-      </a>
-      <div class="post-info">
-        <span>
-          2022-01-20
-        </span>
-        <span>
-          10 min read
-        </span>
-        
-          <a href="https://2321079146.github.io/mobai.github.io/tag/VshJslI3X/" class="post-tag">
-            # 多线程
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </div>
-    </article>
-  
-</div>
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#maven%E4%BE%9D%E8%B5%96">Maven依赖</a></li>
+<li><a href="#springyml%E9%85%8D%E7%BD%AE">Spring.yml配置</a></li>
+<li><a href="#%E8%AF%BB%E5%8F%96%E9%BB%98%E8%AE%A4%E6%95%B0%E6%8D%AE%E6%BA%90">读取默认数据源</a>
+<ul>
+<li><a href="#%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E5%90%8E%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E6%89%80%E6%9C%89%E6%95%B0%E6%8D%AE%E6%BA%90">程序启动后，读取数据库中所有数据源</a></li>
+<li><a href="#ds%E6%95%B0%E6%8D%AE%E6%BA%90%E5%90%8D%E7%A7%B0%E6%8C%87%E5%AE%9A%E6%95%B0%E6%8D%AE%E6%BA%90%E5%A4%84%E7%90%86%E4%B8%9A%E5%8A%A1">@DS(数据源名称)指定数据源，处理业务</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E6%BA%90%E9%85%8D%E7%BD%AE">数据库数据源配置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-    
-        <div class="pagination-container">
-  
-  
-</div>
+              </div>
+            </div>
+          </article>
+        </div>
 
-    
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://2321079146.github.io/mobai.github.io/post/ce-shi-bai-du-kong-jian-shi-fou-ke-yong/">
+              <h3 class="post-title">
+                并发编程（一）：线程池
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
         <div class="site-footer">
   Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
   <a class="rss" href="https://2321079146.github.io/mobai.github.io//atom.xml" target="_blank">
@@ -330,5 +315,46 @@ public class BusinessServiceImpl implements BusinessService {
 
       </div>
     </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
   </body>
 </html>
